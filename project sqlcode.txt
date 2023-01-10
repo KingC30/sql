@@ -1,0 +1,150 @@
+CREATE TABLE student (
+    student_ID integer,
+    first_Name varchar(50), 
+    middle_Name varchar(50), 
+    last_Name varchar(50), 
+    street varchar(50), 
+    city varchar(50),
+    zipCode integer, 
+    degreeType varchar(50), 
+    major varchar(50), 
+    balance float,
+constraint student_PK PRIMARY KEY (student_ID)
+);
+
+CREATE TABLE transaction (
+    transaction_ID integer, 
+    student_ID integer, 
+    monthPurchase integer, 
+    dayPurchase integer, 
+    yearPurchase integer, 
+    totalPayment float,
+constraint transaction_PK PRIMARY KEY (transaction_ID),
+constraint transaction_FK FOREIGN KEY (student_ID) references student (student_ID)
+);
+
+CREATE TABLE book (
+    bookID integer, 
+    title varchar(50), 
+    authorFirst varchar(50), 
+    authorLast varchar(50), 
+    genre varchar(50), 
+    numberInStock integer, 
+    price float,
+constraint book_PK PRIMARY KEY (bookID)
+);
+
+CREATE TABLE transaction_detail (
+    transaction_ID integer, 
+    bookID integer, 
+    monthDue integer, 
+    dayDue integer, 
+    yearDue integer, 
+    monthReturn integer, 
+    dayReturn integer, 
+    yearReturn integer,
+constraint transaction_detailPK PRIMARY KEY (transaction_ID),
+constraint transaction_detailFK FOREIGN KEY (bookID) references book (bookID)
+);
+
+CREATE TABLE e_book (
+    EbookID integer,
+    file_size float,
+constraint e_bookFK FOREIGN KEY (EbookID) references book (bookID)
+);
+
+
+CREATE TABLE physical_copy (
+    Pbook_ID integer, 
+    page_count integer,
+constraint P_bookFK FOREIGN KEY (Pbook_ID) references book (bookID)
+);
+
+-- insert some values
+INSERT INTO student VALUES (1, 'Nandhu', 'K', 'Unnikrishnan', '13121 Serpentine Way', 'Silver Spring', '20904', 'Bachelors', 'IS', 2.00);
+INSERT INTO student VALUES (2, 'Justin', 'N/A', 'Bajor', '1000 Hilltop Circle', 'Baltimore', '21250', 'Bachelors', 'IS', 3.50);
+INSERT INTO student VALUES (3, 'Gia', 'Bao', 'Vo', '1000 Hilltop Circle', 'Baltimore', '21250', 'Bachelors', 'IS', 4.50);
+INSERT INTO student VALUES (4, 'Lebron', null, 'James', '1000 Hilltop Circle', 'Baltimore', '21250', 'Bachelors', 'IS', 100.00);
+INSERT INTO transaction VALUES (1, 1, 5, 1, 2022, 1.00);
+INSERT INTO transaction VALUES (2, 2, 5, 1, 2022, 2.00);
+INSERT INTO transaction VALUES (3, 2, 5, 1, 2022, 3.00);
+INSERT INTO transaction VALUES (4, 3, 5, 1, 2022, 4.00);
+INSERT INTO transaction VALUES (5, 3, 5, 1, 2022, 5.00);
+INSERT INTO transaction VALUES (6, 3, 5, 1, 2022, 6.00);
+INSERT INTO book VALUES (1, 'Hunger Games', 'Suzanne', 'Collins', 'Dystopian', 10, 10.00);
+INSERT INTO book VALUES (2, 'Hunger Games: Catching Fire', 'Suzanne', 'Collins', 'Dystopian', 11, 10.00);
+INSERT INTO book VALUES (3, 'Hunger Games: Mockingjay', 'Suzanne', 'Collins', 'Dystopian', 12, 10.00);
+INSERT INTO book VALUES (4, 'Harry Potter and the Sorcerers Stone', 'Joanne', 'Rowling', 'Fantasy', 13, 10.00);
+INSERT INTO book VALUES (5, 'Harry Potter and the Chamber of Secrets', 'Joanne', 'Rowling', 'Fantasy', 14, 10.00);
+INSERT INTO book VALUES (6, 'Harry Potter and the Prisoner of Azkaban', 'Joanne', 'Rowling', 'Fantasy', 15, 10.00);
+INSERT INTO transaction_detail VALUES (1, 1, 5, 11, 2022, 5, 10, 2022);
+INSERT INTO transaction_detail VALUES (2, 2, 5, 11, 2022, 5, 10, 2022);
+INSERT INTO transaction_detail VALUES (3, 3, 5, 11, 2022, 5, 10, 2022);
+INSERT INTO transaction_detail VALUES (4, 4, 5, 11, 2022, 5, 10, 2022);
+INSERT INTO transaction_detail VALUES (5, 5, 5, 11, 2022, 5, 10, 2022);
+INSERT INTO transaction_detail VALUES (6, 6, 5, 11, 2022, 5, 10, 2022);
+
+-- Queries 
+SELECT title 
+FROM book 
+WHERE title like '%Harry Potter%';
+-- (Queries a list of books that contain the phrase "Harry Potter" in the title)
+
+SELECT title 
+FROM book 
+WHERE title like '%Hunger Games%';
+-- (Queries a list of books that contain the phrase "Hunger Games" in the title)
+
+SELECT title 
+FROM book, transaction_detail, transaction, student 
+WHERE book.bookID = transaction_detail.bookID and transaction_detail.transaction_ID = transaction.transaction_ID and transaction.student_ID = student.student_ID and
+s.first_Name = 'Gia';
+-- (List the titles of all books rented by "Gia")
+
+SELECT title 
+FROM book, transaction_detail, transaction, student 
+WHERE book.bookID = transaction_detail.bookID and transaction_detail.transaction_ID = transaction.transaction_ID and transaction.student_ID = student.student_ID and
+s.first_Name = 'Nandhu';
+-- (List the titles of all books rented by "Nandhu")
+
+SELECT title 
+FROM book, transaction_detail, transaction, student 
+WHERE book.bookID = transaction_detail.bookID and transaction_detail.transaction_ID = transaction.transaction_ID and transaction.student_ID = student.student_ID and
+s.first_Name = 'Justin';
+-- (List the titles of all books rented by "Justin")
+
+UPDATE book 
+SET price = 20.00 
+WHERE authorLast = 'Collins';
+-- (Updates the price of all books that is written by Collins to $20)
+
+UPDATE student
+SET balance = 0.00
+WHERE student_ID = 3
+-- (Updates the balance of studentID 3 to $0)
+
+SELECT first_Name, count(*) 
+FROM student, transaction 
+WHERE student.student_ID = transaction.student_ID 
+group by first_Name;
+-- (Returns the number of orders placed by each student (does not return students who has not placed an order))
+
+SELECT city, count(*)
+FROM student
+group by city;
+-- (Returns the number of students in each city)
+
+DELETE FROM book 
+WHERE title like '%Harry Potter%';
+-- (Deletes books from the database that contain the phrase "Harry Potter")
+
+Select* from book 
+WHERE price >= 20;
+-- (Returns the list of books whose prices are greater than or equal to $20)
+
+UPDATE book 
+SET price = price + 15.10 
+WHERE title like '%Hunger Games%';
+-- (Updates the book price by $15.10 when the book title contains the phrase "Hunger Games")
+
+
